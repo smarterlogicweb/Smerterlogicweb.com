@@ -10,22 +10,15 @@ import { track } from "@/lib/analytics";
 import { availablePathsFR, availablePathsEN } from "@/data/routes";
 
 function useDarkMode() {
+  // Rely solely on the 'dark' class applied to <html> for theme,
+  // to avoid mismatch between OS preference and actual site theme.
   const [isDark, setIsDark] = useState(false);
   useEffect(() => {
-    const mm = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)");
-    const hasClass = document.documentElement.classList.contains("dark");
-    setIsDark(hasClass || (mm ? mm.matches : false));
-    const onChange = () => {
-      const hc = document.documentElement.classList.contains("dark");
-      setIsDark(hc || (mm ? mm.matches : false));
-    };
-    mm && mm.addEventListener && mm.addEventListener("change", onChange);
-    const mo = new MutationObserver(onChange);
+    const compute = () => document.documentElement.classList.contains("dark");
+    setIsDark(compute());
+    const mo = new MutationObserver(() => setIsDark(compute()));
     mo.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
-    return () => {
-      mm && mm.removeEventListener && mm.removeEventListener("change", onChange);
-      mo.disconnect();
-    };
+    return () => mo.disconnect();
   }, []);
   return isDark;
 }
