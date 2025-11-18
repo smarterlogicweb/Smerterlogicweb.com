@@ -64,7 +64,7 @@ export function Footer() {
     [isEn]
   );
 
-  const footerLogo = (process.env.NEXT_PUBLIC_LOGO_FOOTER || "").trim();
+  const footerLogo = (process.env.NEXT_PUBLIC_LOGO_FOOTER || "/4.svg").trim();
 
   return (
     <footer id="site-footer" className="w-full border-t">

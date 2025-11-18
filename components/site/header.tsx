@@ -31,10 +31,16 @@ function useDarkMode() {
 }
 
 function getLogoSrc(isDark: boolean, small?: boolean) {
-  const headerLight = process.env.NEXT_PUBLIC_LOGO_HEADER_LIGHT || "/logo.svg";
-  const headerDark = process.env.NEXT_PUBLIC_LOGO_HEADER_DARK || headerLight;
-  const headerSmallLight = process.env.NEXT_PUBLIC_LOGO_HEADER_SMALL_LIGHT || headerLight;
-  const headerSmallDark = process.env.NEXT_PUBLIC_LOGO_HEADER_SMALL_DARK || headerDark;
+  // Defaults map to files placed in /public
+  const defaultHeaderLight = "/1.svg";
+  const defaultHeaderDark = "/2.svg";
+  const defaultHeaderSmallLight = "/3.svg";
+  const defaultHeaderSmallDark = "/2.svg"; // use dark big as fallback if small dark not provided
+
+  const headerLight = process.env.NEXT_PUBLIC_LOGO_HEADER_LIGHT || defaultHeaderLight;
+  const headerDark = process.env.NEXT_PUBLIC_LOGO_HEADER_DARK || defaultHeaderDark;
+  const headerSmallLight = process.env.NEXT_PUBLIC_LOGO_HEADER_SMALL_LIGHT || defaultHeaderSmallLight;
+  const headerSmallDark = process.env.NEXT_PUBLIC_LOGO_HEADER_SMALL_DARK || defaultHeaderSmallDark;
 
   if (small) {
     return isDark ? headerSmallDark : headerSmallLight;
