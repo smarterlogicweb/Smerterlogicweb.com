@@ -3,6 +3,7 @@ import { CheckCircle2, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { BookingButton } from "@/components/site/booking-modal";
 import { PLANS_FR, URGENCY_SLOTS_LEFT_MONTH } from "@/data/pricing";
+import { Button } from "@/components/ui/button";
 
 type Plan = {
   name: string;
@@ -10,6 +11,15 @@ type Plan = {
   features: string[];
   recommended?: boolean;
 };
+
+function getPaymentLink(planName: string): string {
+  const map: Record<string, string | undefined> = {
+    Essentiel: process.env.NEXT_PUBLIC_STRIPE_LINK_ESSENTIEL,
+    Professionnel: process.env.NEXT_PUBLIC_STRIPE_LINK_PROFESSIONNEL,
+    Premium: process.env.NEXT_PUBLIC_STRIPE_LINK_PREMIUM,
+  };
+  return (map[planName] || "").trim();
+}
 
 export function PricingOffers() {
   const slides = PLANS_FR.map((plan) => <PlanCard key={plan.name} plan={plan} />);
@@ -47,6 +57,8 @@ export function PricingOffers() {
 }
 
 function PlanCard({ plan }: { plan: Plan }) {
+  const link = getPaymentLink(plan.name);
+
   return (
     <article
       className={cn(
@@ -76,8 +88,13 @@ function PlanCard({ plan }: { plan: Plan }) {
           ))}
         </ul>
 
-        <div className="mt-auto pt-4">
+        <div className="mt-auto pt-4 grid grid-cols-1 gap-2">
           <BookingButton className="w-full h-11 md:h-12 text-base" label="Réserver mon audit gratuit (15 min)" />
+          {link ? (
+            <Button asChild className="w-full h-11 md:h-12 text-base" variant="secondary">
+              <a href={link} rel="noopener noreferrer" target="_blank">Payer maintenant</a>
+            </Button>
+          ) : null}
         </div>
       </div>
     </article>
