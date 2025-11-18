@@ -32,7 +32,17 @@ export const metadata = {
   },
 };
 
+function paymentLinks() {
+  return {
+    essentiel: (process.env.NEXT_PUBLIC_STRIPE_LINK_ESSENTIEL || "").trim(),
+    professionnel: (process.env.NEXT_PUBLIC_STRIPE_LINK_PROFESSIONNEL || "").trim(),
+    premium: (process.env.NEXT_PUBLIC_STRIPE_LINK_PREMIUM || "").trim(),
+  };
+}
+
 export default function Tarifs2025Page() {
+  const links = paymentLinks();
+
   return (
     <div className="relative mx-auto w-full max-w-6xl px-6 py-16 md:py-24">
       {/* Hero background accents */}
@@ -100,6 +110,55 @@ export default function Tarifs2025Page() {
             <PdfDownloadButton slug="grille-tarifs-2025" label="Recevoir la Grille Tarifs 2025 (PDF)" />
           </div>
         </div>
+      </section>
+
+      {/* Paiement immédiat */}
+      <section className="mt-10">
+        <h2 className="font-heading text-2xl font-semibold">Paiement immédiat</h2>
+        <div className="mt-4 grid gap-4 md:grid-cols-3">
+          <article className="rounded-2xl border bg-card p-6 card-elevated text-center">
+            <h3 className="font-heading text-lg font-semibold">Essentiel</h3>
+            <p className="mt-1 text-sm text-muted-foreground">1 490€ TTC</p>
+            <div className="mt-3">
+              {links.essentiel ? (
+                <Button asChild className="w-full rounded-full">
+                  <a href={links.essentiel} target="_blank" rel="noopener noreferrer">Payer maintenant</a>
+                </Button>
+              ) : (
+                <p className="text-xs text-muted-foreground">Lien de paiement bientôt disponible.</p>
+              )}
+            </div>
+          </article>
+          <article className="rounded-2xl border bg-card p-6 card-elevated text-center">
+            <h3 className="font-heading text-lg font-semibold">Professionnel</h3>
+            <p className="mt-1 text-sm text-muted-foreground">2 490€ TTC</p>
+            <div className="mt-3">
+              {links.professionnel ? (
+                <Button asChild className="w-full rounded-full">
+                  <a href={links.professionnel} target="_blank" rel="noopener noreferrer">Payer maintenant</a>
+                </Button>
+              ) : (
+                <p className="text-xs text-muted-foreground">Lien de paiement bientôt disponible.</p>
+              )}
+            </div>
+          </article>
+          <article className="rounded-2xl border bg-card p-6 card-elevated text-center">
+            <h3 className="font-heading text-lg font-semibold">Premium</h3>
+            <p className="mt-1 text-sm text-muted-foreground">4 990€ TTC</p>
+            <div className="mt-3">
+              {links.premium ? (
+                <Button asChild className="w-full rounded-full">
+                  <a href={links.premium} target="_blank" rel="noopener noreferrer">Payer maintenant</a>
+                </Button>
+              ) : (
+                <p className="text-xs text-muted-foreground">Lien de paiement bientôt disponible.</p>
+              )}
+            </div>
+          </article>
+        </div>
+        <p className="mt-3 text-xs text-muted-foreground">
+          Alternative sans frais: <Link href="/paiement-virement" className="underline">paiement par virement (IBAN + QR SEPA)</Link>.
+        </p>
       </section>
 
       {/* Option: Formule Évolution */}

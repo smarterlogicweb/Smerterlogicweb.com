@@ -2,13 +2,12 @@ import { Mail, ShieldCheck, Clock, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { TrackedLink } from "@/components/site/tracked-link";
-import { ContactForm } from "@/components/site/contact-form";
 import { Reveal } from "@/components/site/reveal";
 import { GoogleReviewsBadge } from "@/components/site/google-reviews";
 import { BookingButton } from "@/components/site/booking-modal";
 import { Guarantee } from "@/components/site/guarantee";
 import { Particles } from "@/components/site/particles";
-import { Suspense } from "react";
+import { HubSpotForm } from "@/components/site/hubspot-form";
 
 export const metadata = {
   title: "Contact — smarterlogicweb.com",
@@ -27,7 +26,17 @@ export const metadata = {
   },
 };
 
+function hubspotEnv() {
+  return {
+    portalId: (process.env.NEXT_PUBLIC_HUBSPOT_PORTAL_ID || "").trim(),
+    formId: (process.env.NEXT_PUBLIC_HUBSPOT_CONTACT_FORM_ID || "").trim(),
+    region: (process.env.NEXT_PUBLIC_HUBSPOT_REGION || "na1").trim(),
+  };
+}
+
 export default function ContactPage() {
+  const hs = hubspotEnv();
+
   return (
     <section className="relative mx-auto w-full max-w-3xl px-6 py-16 md:py-24">
       {/* Hero background accents */}
@@ -82,12 +91,19 @@ export default function ContactPage() {
         </Reveal>
       </div>
 
-      {/* Formulaire avec validation */}
+      {/* Formulaire (HubSpot embed si configuré, sinon note) */}
       <div className="mt-10 rounded-[28px] card-elevated border bg-card p-6 shadow-sm">
         <Reveal as="h2" className="h2-underline text-left font-heading text-xl font-semibold">Envoyer un message</Reveal>
-        <Suspense fallback={<div className="mt-3 text-sm text-muted-foreground">Chargement du formulaire…</div>}>
-          <ContactForm locale="fr" action="/merci" />
-        </Suspense>
+        <div className="mt-3">
+          {hs.portalId && hs.formId ? (
+            <HubSpotForm portalId={hs.portalId} formId={hs.formId} region={hs.region} className="mt-3" />
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              Le formulaire HubSpot sera bientôt disponible. En attendant, écrivez-moi à{" "}
+              <a href="mailto:contact@smarterlogicweb.com" className="underline">contact@smarterlogicweb.com</a>.
+            </p>
+          )}
+        </div>
       </div>
 
       {/* Conseils pour un premier message efficace */}

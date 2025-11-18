@@ -12,6 +12,7 @@ const nextConfig = {
       { protocol: "https", hostname: "bmsventouse.fr" },
       { protocol: "https", hostname: "image.thum.io" },
       { protocol: "https", hostname: "images.unsplash.com" },
+      { protocol: "https", hostname: "api.qrserver.com" },
     ],
   },
   // Build a minimal standalone server for custom hosting platforms (e.g., Docker, generic PaaS).
@@ -25,12 +26,13 @@ const nextConfig = {
   async headers() {
     const csp = [
       "default-src 'self'",
-      "script-src 'self' https://plausible.io https://analytics.umami.is https://www.google.com https://www.gstatic.com https://www.googletagmanager.com https://www.google-analytics.com https://connect.facebook.net https://snap.licdn.com https://static.hotjar.com https://script.hotjar.com",
-      "connect-src 'self' https://plausible.io https://analytics.umami.is https://www.google.com https://www.gstatic.com https://www.googletagmanager.com https://www.google-analytics.com https://px.ads.linkedin.com https://www.facebook.com https://connect.facebook.net https://graph.facebook.com https://region1.hotjar.com https://api.sanity.io https://apicdn.sanity.io https://cdn.sanity.io https://afuqy886.api.sanity.io wss:",
+      // add HubSpot domains
+      "script-src 'self' https://plausible.io https://analytics.umami.is https://www.google.com https://www.gstatic.com https://www.googletagmanager.com https://www.google-analytics.com https://connect.facebook.net https://snap.licdn.com https://static.hotjar.com https://script.hotjar.com https://js.hs-scripts.com https://js.hs-analytics.net https://js.hsforms.net",
+      "connect-src 'self' https://plausible.io https://analytics.umami.is https://www.google.com https://www.gstatic.com https://www.googletagmanager.com https://www.google-analytics.com https://px.ads.linkedin.com https://www.facebook.com https://connect.facebook.net https://graph.facebook.com https://region1.hotjar.com https://api.sanity.io https://apicdn.sanity.io https://cdn.sanity.io https://afuqy886.api.sanity.io https://api.hubapi.com https://track.hubspot.com wss:",
       "style-src 'self' 'unsafe-inline'",
-      "img-src 'self' data: blob: https://www.gstatic.com https://www.google-analytics.com https://px.ads.linkedin.com https://www.facebook.com https://cdn.sanity.io",
+      "img-src 'self' data: blob: https://www.gstatic.com https://www.google-analytics.com https://px.ads.linkedin.com https://www.facebook.com https://cdn.sanity.io https://track.hubspot.com https://api.qrserver.com",
       "font-src 'self'",
-      "frame-src 'self' https://www.google.com https://www.googletagmanager.com",
+      "frame-src 'self' https://www.google.com https://www.googletagmanager.com https://forms.hubspot.com",
       "frame-ancestors 'self'",
       "base-uri 'self'",
       "form-action 'self'",
