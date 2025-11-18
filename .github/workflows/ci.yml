@@ -88,8 +88,8 @@ jobs:
       - name: Install dependencies (npm ci with lockfile)
         run: npm ci
 
-      - name: Prettier Check
-        run: npm run format:check
+      - name: Prettier Format
+        run: npm run format
 
       - name: Lint
         run: npm run lint
