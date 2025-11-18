@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getScheduledPostBySlugBurst, formatDate } from "@/lib/blog";
-import { getAllPosts } from "@/lib/blog-source";
+import { getAllPostsAsync } from "@/lib/blog-source";
 import { RecommendedArticles } from "@/components/site/recommended-articles";
 import { RelatedCities } from "@/components/site/related-cities";
 import { Breadcrumbs } from "@/components/site/breadcrumbs";
@@ -12,7 +12,7 @@ import { BlogLightboxBinder } from "@/components/site/blog-lightbox-binder";
 export const revalidate = 60;
 
 export async function generateMetadata({ params }: { params: { slug: string } }) {
-  const all = getAllPosts();
+  const all = await getAllPostsAsync();
   const result = getScheduledPostBySlugBurst(all, params.slug, "fr");
   if (!result || !result.isPublished) {
     return {
@@ -51,8 +51,9 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   };
 }
 
-export default function BlogPostFR({ params }: { params: { slug: string } }) {
-  const result = getScheduledPostBySlugBurst(getAllPosts(), params.slug, "fr");
+export default async function BlogPostFR({ params }: { params: { slug: string } }) {
+  const all = await getAllPostsAsync();
+  const result = getScheduledPostBySlugBurst(all, params.slug, "fr");
   if (!result) notFound();
 
   const { post, isPublished } = result;
