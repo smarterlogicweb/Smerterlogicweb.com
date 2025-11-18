@@ -9,6 +9,39 @@ import { Menu, X, ChevronDown } from "lucide-react";
 import { track } from "@/lib/analytics";
 import { availablePathsFR, availablePathsEN } from "@/data/routes";
 
+function useDarkMode() {
+  const [isDark, setIsDark] = useState(false);
+  useEffect(() => {
+    const mm = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)");
+    const hasClass = document.documentElement.classList.contains("dark");
+    setIsDark(hasClass || (mm ? mm.matches : false));
+    const onChange = () => {
+      const hc = document.documentElement.classList.contains("dark");
+      setIsDark(hc || (mm ? mm.matches : false));
+    };
+    mm && mm.addEventListener && mm.addEventListener("change", onChange);
+    const mo = new MutationObserver(onChange);
+    mo.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+    return () => {
+      mm && mm.removeEventListener && mm.removeEventListener("change", onChange);
+      mo.disconnect();
+    };
+  }, []);
+  return isDark;
+}
+
+function getLogoSrc(isDark: boolean, small?: boolean) {
+  const headerLight = process.env.NEXT_PUBLIC_LOGO_HEADER_LIGHT || "/logo.svg";
+  const headerDark = process.env.NEXT_PUBLIC_LOGO_HEADER_DARK || headerLight;
+  const headerSmallLight = process.env.NEXT_PUBLIC_LOGO_HEADER_SMALL_LIGHT || headerLight;
+  const headerSmallDark = process.env.NEXT_PUBLIC_LOGO_HEADER_SMALL_DARK || headerDark;
+
+  if (small) {
+    return isDark ? headerSmallDark : headerSmallLight;
+  }
+  return isDark ? headerDark : headerLight;
+}
+
 export function Header() {
   const [open, setOpen] = useState(false);
   const [openServices, setOpenServices] = useState(false);
@@ -17,12 +50,12 @@ export function Header() {
   const isEn = pathname.startsWith("/en");
   const prefix = isEn ? "/en" : "";
   const available = isEn ? availablePathsEN : availablePathsFR;
+  const isDark = useDarkMode();
 
   const t = useMemo(
     () =>
       isEn
         ? {
-            
             nav: {
               projects: "Projects",
               services: "Services",
@@ -45,7 +78,6 @@ export function Header() {
             lang: "FR",
           }
         : {
-            
             nav: {
               projects: "Projets",
               services: "Services",
@@ -142,15 +174,17 @@ export function Header() {
     };
   }, [open]);
 
+  const logoSrc = getLogoSrc(isDark, false);
+  const logoSrcSmall = getLogoSrc(isDark, true);
+
   return (
     <header className="sticky top-11 z-40 w-full border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      
       <div className="mx-auto flex w-full max-w-5xl items-center justify-between px-6 py-3">
         <div className="flex items-center gap-3">
           <Link href={isEn ? "/en" : "/"} className="flex items-center gap-3 text-sm font-semibold tracking-tight rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background" aria-label={isEn ? "Home — smarterlogicweb" : "Accueil — smarterlogicweb"} title={isEn ? "Home — smarterlogicweb" : "Accueil — smarterlogicweb"}>
             <Image
-              src="/logo.svg"
-              alt="smarterlogicweb"
+              src={logoSrc}
+              alt="Logo"
               width={96}
               height={96}
               className="h-20 w-20 transition-transform hover:scale-105"
@@ -334,7 +368,7 @@ export function Header() {
           <div className="mx-auto flex w-full max-w-5xl flex-col px-6 py-6">
             <div className="flex items-center justify-between">
               <Link href={isEn ? "/en" : "/"} className="flex items-center gap-3 text-sm font-semibold tracking-tight rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background" aria-label={isEn ? "Home — smarterlogicweb" : "Accueil — smarterlogicweb"} title={isEn ? "Home — smarterlogicweb" : "Accueil — smarterlogicweb"} onClick={() => setOpen(false)}>
-                <Image src="/logo.svg" alt="smarterlogicweb" width={96} height={96} className="h-20 w-20 transition-transform hover:scale-105" />
+                <Image src={logoSrcSmall} alt="Logo" width={96} height={96} className="h-20 w-20 transition-transform hover:scale-105" />
                 <span className="sr-only">{isEn ? "Home" : "Accueil"}</span>
               </Link>
               <button
