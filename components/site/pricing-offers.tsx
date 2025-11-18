@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { BookingButton } from "@/components/site/booking-modal";
 import { PLANS_FR, URGENCY_SLOTS_LEFT_MONTH } from "@/data/pricing";
 import { Button } from "@/components/ui/button";
+import { track } from "@/lib/analytics";
 
 type Plan = {
   name: string;
@@ -92,7 +93,18 @@ function PlanCard({ plan }: { plan: Plan }) {
           <BookingButton className="w-full h-11 md:h-12 text-base" label="Réserver mon audit gratuit (15 min)" />
           {link ? (
             <Button asChild className="w-full h-11 md:h-12 text-base" variant="secondary">
-              <a href={link} rel="noopener noreferrer" target="_blank">Payer maintenant</a>
+              <a
+                href={link}
+                rel="noopener noreferrer"
+                target="_blank"
+                onClick={() => {
+                  try {
+                    track("payment_link_clicked", { plan: plan.name, price: plan.price, locale: "fr" });
+                  } catch {}
+                }}
+              >
+                Payer maintenant
+              </a>
             </Button>
           ) : null}
         </div>
