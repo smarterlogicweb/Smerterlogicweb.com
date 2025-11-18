@@ -24,11 +24,11 @@ function useDarkMode() {
 }
 
 function getLogoSrc(isDark: boolean, small?: boolean) {
-  // Defaults map to files placed in /public root (1.svg,2.svg,3.svg,4.svg)
-  const defaultHeaderLight = "/1.svg"; // blue large
-  const defaultHeaderDark = "/2.svg"; // white large
-  const defaultHeaderSmallLight = "/3.svg"; // blue small
-  const defaultHeaderSmallDark = "/2.svg"; // fallback small white to large white if dedicated small not present
+  // Defaults map to files placed in /public/logos (renamed for clarity)
+  const defaultHeaderLight = "/logos/logo-header-blue.svg";
+  const defaultHeaderDark = "/logos/logo-header-white.svg";
+  const defaultHeaderSmallLight = "/logos/logo-header-blue-small.svg";
+  const defaultHeaderSmallDark = "/logos/logo-header-white.svg"; // use large white if no dedicated small white
 
   const headerLight = process.env.NEXT_PUBLIC_LOGO_HEADER_LIGHT || defaultHeaderLight;
   const headerDark = process.env.NEXT_PUBLIC_LOGO_HEADER_DARK || defaultHeaderDark;
