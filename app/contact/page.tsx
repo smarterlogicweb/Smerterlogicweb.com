@@ -8,6 +8,7 @@ import { BookingButton } from "@/components/site/booking-modal";
 import { Guarantee } from "@/components/site/guarantee";
 import { Particles } from "@/components/site/particles";
 import { ContactForm } from "@/components/site/contact-form";
+import { Suspense } from "react";
 
 export const metadata = {
   title: "Contact — smarterlogicweb.com",
@@ -85,7 +86,9 @@ export default function ContactPage() {
       <div className="mt-10 rounded-[28px] card-elevated border bg-card p-6 shadow-sm">
         <Reveal as="h2" className="h2-underline text-left font-heading text-xl font-semibold">Envoyer un message</Reveal>
         <div className="mt-3">
-          <ContactForm locale="fr" action="/api/contact-email" />
+          <Suspense fallback={<div className="text-sm text-muted-foreground">Chargement…</div>}>
+            <ContactForm locale="fr" action="/api/contact-email" />
+          </Suspense>
         </div>
       </div>
 
