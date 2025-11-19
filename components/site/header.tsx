@@ -227,7 +227,7 @@ export function Header() {
               alt="Logo"
               width={96}
               height={96}
-              className="h-20 w-20 transition-transform hover:scale-105"
+              className="h-16 w-16 transition-transform hover:scale-105 md:h-20 md:w-20"
               priority
             />
             <span className="sr-only">{isEn ? "Home" : "Accueil"}</span>
@@ -446,10 +446,10 @@ export function Header() {
             }
           }}
         >
-          <div ref={drawerRef} className="mx-auto flex w-full max-w-5xl min-h-full flex-col bg-background px-6 py-6 text-foreground modal-content">
-            <div className="flex items-center justify-between">
+          <div ref={drawerRef} className="mx-auto flex w-full max-w-5xl min-h-full flex-col bg-background px-6 py-6 text-foreground modal-content drawer-content">
+            <div className="flex items-center justify-between border-b pb-2">
               <Link href={isEn ? "/en" : "/"} className="flex items-center gap-3 text-sm font-semibold tracking-tight rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background" aria-label={isEn ? "Home — smarterlogicweb" : "Accueil — smarterlogicweb"} title={isEn ? "Home — smarterlogicweb" : "Accueil — smarterlogicweb"} onClick={() => setOpen(false)}>
-                <Image src={logoSrcSmall} alt="Logo" width={96} height={96} className="h-20 w-20 transition-transform hover:scale-105" />
+                <Image src={logoSrcSmall} alt="Logo" width={96} height={96} className="h-16 w-16 transition-transform hover:scale-105 md:h-20 md:w-20" />
                 <span className="sr-only">{isEn ? "Home" : "Accueil"}</span>
               </Link>
               <button
