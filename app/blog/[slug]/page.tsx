@@ -8,6 +8,8 @@ import { Breadcrumbs } from "@/components/site/breadcrumbs";
 import { CitationBox } from "@/components/site/citation-box";
 import { TableOfContents } from "@/components/site/table-of-contents";
 import { BlogLightboxBinder } from "@/components/site/blog-lightbox-binder";
+import { ScrollProgress } from "@/components/site/scroll-progress";
+import { CopyHeadingLinks } from "@/components/site/copy-heading-links";
 
 export const revalidate = 60;
 
@@ -109,6 +111,7 @@ export default async function BlogPostFR({ params }: { params: { slug: string } 
     <section className="relative">
       {/* Ambient brand gradient background, subtle and non-intrusive */}
       <div aria-hidden className="hero-gradient-animated absolute inset-0 -z-10" />
+      <ScrollProgress />
 
       <article className="mx-auto w-full max-w-5xl px-6 py-10">
         {/* JSON-LD BreadcrumbList */}
@@ -149,6 +152,7 @@ export default async function BlogPostFR({ params }: { params: { slug: string } 
               className="prose prose-neutral dark:prose-invert max-w-none prose-headings:font-heading prose-a:text-primary prose-a:underline-offset-2 prose-img:rounded-lg prose-img:shadow-sm"
               dangerouslySetInnerHTML={{ __html: normalizedContentHtml }}
             />
+            <CopyHeadingLinks rootId="article-content" locale="fr" />
 
             <RelatedCities contentHtml={normalizedContentHtml} locale="fr" />
 

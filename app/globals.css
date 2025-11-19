@@ -991,13 +991,20 @@ html {
 }
 
 /* Common anchor targets (blog content, sections) */
+/* Apply scroll offset to typical anchor targets site-wide */
 .prose h2[id],
 .prose h3[id],
 .prose h4[id],
 .prose h5[id],
 .prose h6[id],
+h2[id],
+h3[id],
+h4[id],
+h5[id],
+h6[id],
 section[id],
-article[id] {
+article[id],
+div[id][data-anchor="1"] {
   scroll-margin-top: var(--scroll-offset-d);
 }
 
@@ -1007,8 +1014,14 @@ article[id] {
   .prose h4[id],
   .prose h5[id],
   .prose h6[id],
+  h2[id],
+  h3[id],
+  h4[id],
+  h5[id],
+  h6[id],
   section[id],
-  article[id] {
+  article[id],
+  div[id][data-anchor="1"] {
     scroll-margin-top: var(--scroll-offset-m);
   }
 }
