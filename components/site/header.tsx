@@ -28,7 +28,7 @@ function getLogoSrc(isDark: boolean, small?: boolean) {
   const defaultHeaderLight = "/logos/logo-header-blue.svg";
   const defaultHeaderDark = "/logos/logo-header-white.svg";
   const defaultHeaderSmallLight = "/logos/logo-header-blue-small.svg";
-  const defaultHeaderSmallDark = "/logos/logo-header-white.svg"; // use large white if no dedicated small white
+  const defaultHeaderSmallDark = "/logos/logo-header-white-small.svg"; // dedicated small white for dark theme
 
   const headerLight = process.env.NEXT_PUBLIC_LOGO_HEADER_LIGHT || defaultHeaderLight;
   const headerDark = process.env.NEXT_PUBLIC_LOGO_HEADER_DARK || defaultHeaderDark;
