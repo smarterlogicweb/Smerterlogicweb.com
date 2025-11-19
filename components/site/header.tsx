@@ -410,7 +410,7 @@ export function Header() {
           aria-modal="true"
           className="fixed inset-0 z-[60] block bg-background md:hidden"
         >
-          <div className="mx-auto flex w-full max-w-5xl flex-col px-6 py-6">
+          <div className="mx-auto flex w-full max-w-5xl min-h-full flex-col bg-background px-6 py-6 text-foreground">
             <div className="flex items-center justify-between">
               <Link href={isEn ? "/en" : "/"} className="flex items-center gap-3 text-sm font-semibold tracking-tight rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background" aria-label={isEn ? "Home — smarterlogicweb" : "Accueil — smarterlogicweb"} title={isEn ? "Home — smarterlogicweb" : "Accueil — smarterlogicweb"} onClick={() => setOpen(false)}>
                 <Image src={logoSrcSmall} alt="Logo" width={96} height={96} className="h-20 w-20 transition-transform hover:scale-105" />
