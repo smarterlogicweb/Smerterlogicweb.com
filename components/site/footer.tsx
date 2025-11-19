@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { Github, Linkedin, Mail } from "lucide-react";
 import { track } from "@/lib/analytics";
 import { usePathname } from "next/navigation";
@@ -63,6 +64,8 @@ export function Footer() {
     [isEn]
   );
 
+  const footerLogo = (process.env.NEXT_PUBLIC_LOGO_FOOTER || "/logos/logo-footer.svg").trim();
+
   return (
     <footer id="site-footer" className="w-full border-t">
       <div className="mx-auto w-full max-w-6xl px-6 py-10">
@@ -71,9 +74,13 @@ export function Footer() {
           {/* Brand + tagline */}
           <div className="md:col-span-5">
             <Link href={isEn ? "/en" : "/"} className="inline-flex items-center gap-2">
-              <span className="rounded-md bg-accent px-2 py-1 text-sm font-semibold text-accent-foreground">
-                smarterlogicweb
-              </span>
+              {footerLogo ? (
+                <Image src={footerLogo} alt="Logo" width={120} height={40} className="h-10 w-auto" />
+              ) : (
+                <span className="rounded-md bg-accent px-2 py-1 text-sm font-semibold text-accent-foreground">
+                  smarterlogicweb
+                </span>
+              )}
             </Link>
             <p className="mt-4 max-w-md text-sm text-muted-foreground">
               {isEn

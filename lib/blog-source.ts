@@ -9,6 +9,8 @@ import remarkRehype from "remark-rehype";
 import rehypeRaw from "rehype-raw";
 import rehypeSanitize from "rehype-sanitize";
 import rehypeStringify from "rehype-stringify";
+import { createClient } from "@sanity/client";
+import { toHTML } from "@portabletext/to-html";
 
 import type { BlogPost, BlogLocale } from "./blog";
 
@@ -199,6 +201,71 @@ export function loadPostsFromMarkdown(): BlogPost[] {
   return posts;
 }
 
+// Sanity source (used when BLOG_SOURCE=sanity)
+export async function loadPostsFromSanity(): Promise<BlogPost[]> {
+  const projectId = process.env.SANITY_PROJECT_ID || "afuqy886";
+  const dataset = process.env.SANITY_DATASET || "production";
+  const apiVersion = process.env.SANITY_API_VERSION || "2025-11-14";
+
+  const client = createClient({ projectId, dataset, apiVersion, useCdn: true });
+
+  const groq = `*[_type == "post"] | order(coalesce(publishAt, _updatedAt) desc){
+    "slug": slug.current,
+    locale,
+    title,
+    summary,
+    publishAt,
+    published,
+    draft,
+    tags,
+    altLocales,
+    body
+  }`;
+
+  const items = await client.fetch<any[]>(groq);
+
+  const posts: BlogPost[] = items.map((it) => {
+    // Convert Portable Text body -> HTML
+    const html = toHTML(it.body || []);
+    const enhanced = enhanceContentHtml(html);
+    const publishAtISO: string | undefined = it.publishAt || undefined;
+
+    return {
+      slug: it.slug,
+      locale: it.locale || "fr",
+      title: it.title || it.slug,
+      summary: it.summary || undefined,
+      contentHtml: enhanced,
+      tags: Array.isArray(it.tags) ? it.tags : undefined,
+      authorName: undefined,
+      authorUrl: undefined,
+      publishAt: publishAtISO,
+      published: it.published === true || false,
+      draft: it.draft === true || false,
+      altLocales: it.altLocales && typeof it.altLocales === "object" ? (it.altLocales as any) : undefined,
+    };
+  });
+
+  return posts;
+}
+
 export function getAllPosts(): BlogPost[] {
+  const source = (process.env.BLOG_SOURCE || "").trim().toLowerCase();
+  if (source === "sanity") {
+    // Note: pages that call getAllPosts() are not async. For simplicity and SSR determinism
+    // we synchronously fall back to Markdown if SANITY is unavailable.
+    // To enable Sanity fully, consider migrating pages to async and awaiting this call.
+    // Quick approach: throw to indicate misconfiguration if requested.
+    throw new Error("BLOG_SOURCE=sanity requires using the async loadPostsFromSanity() in pages.");
+  }
   return loadPostsFromMarkdown();
+}
+
+// Helper for async callers
+export async function getAllPostsAsync(): Promise<BlogPost[]> {
+  const source = (process.env.BLOG_SOURCE || "").trim().toLowerCase();
+  if (source === "sanity") {
+    return await loadPostsFromSanity();
+  }
+  return Promise.resolve(loadPostsFromMarkdown());
 }

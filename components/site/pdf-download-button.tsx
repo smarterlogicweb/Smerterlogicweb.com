@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { track } from "@/lib/analytics";
 
 type Props = {
   slug: "grille-tarifs-2025" | "wp-vs-site-statique-3-ans";
@@ -30,6 +31,10 @@ export function PdfDownloadButton({ slug, label = "Recevoir le PDF par email", c
     }
     setSending(true);
     try {
+      // Track intent before sending
+      try {
+        track("pdf_pricing_downloaded", { slug, emailProvided: true });
+      } catch {}
       const res = await fetch("/api/pdf/send", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -55,7 +60,12 @@ export function PdfDownloadButton({ slug, label = "Recevoir le PDF par email", c
     <div className={className}>
       {!open ? (
         <button
-          onClick={() => setOpen(true)}
+          onClick={() => {
+            setOpen(true);
+            try {
+              track("pdf_intent_opened", { slug });
+            } catch {}
+          }}
           className="inline-flex items-center rounded-full border bg-card px-4 py-2 text-sm hover:bg-accent"
         >
           {label}

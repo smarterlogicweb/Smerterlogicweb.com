@@ -1,0 +1,34 @@
+name: Deploy (Vercel or Netlify) after CI
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Trigger Deploy Hook
+    runs-on: ubuntu-latest
+    needs: []
+    steps:
+      - name: Decide provider
+        id: decide
+        run: |
+          if [ -n "${{ secrets.VERCEL_DEPLOY_HOOK_URL }}" ]; then
+            echo "provider=vercel" >> $GITHUB_OUTPUT
+          elif [ -n "${{ secrets.NETLIFY_BUILD_HOOK_URL }}" ]; then
+            echo "provider=netlify" >> $GITHUB_OUTPUT
+          else
+            echo "No deploy hook secret set (VERCEL_DEPLOY_HOOK_URL or NETLIFY_BUILD_HOOK_URL)."
+            exit 1
+          fi
+      - name: Trigger Vercel
+        if: steps.decide.outputs.provider == 'vercel'
+        run: |
+          curl -s -X POST "${{ secrets.VERCEL_DEPLOY_HOOK_URL }}" || exit 1
+      - name: Trigger Netlify
+        if: steps.decide.outputs.provider == 'netlify'
+        run: |
+          curl -s -X POST "${{ secrets.NETLIFY_BUILD_HOOK_URL }}" || exit 1

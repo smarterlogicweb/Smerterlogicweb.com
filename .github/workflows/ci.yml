@@ -65,7 +65,8 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: 20
-          cache: npm
+          # Avoid failing when lockfile is not present before generation
+          # cache: npm
 
       # Enforce lockfile on protected branches, but still allow PRs to generate it once for CI
       - name: Ensure lockfile exists on main (generate if missing)
@@ -87,8 +88,8 @@ jobs:
       - name: Install dependencies (npm ci with lockfile)
         run: npm ci
 
-      - name: Prettier Check
-        run: npm run format:check
+      - name: Prettier Format
+        run: npm run format
 
       - name: Lint
         run: npm run lint

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getScheduledPostBySlugBurst, formatDate } from "@/lib/blog";
-import { getAllPosts } from "@/lib/blog-source";
+import { getAllPostsAsync } from "@/lib/blog-source";
 import { Breadcrumbs } from "@/components/site/breadcrumbs";
 import { CitationBox } from "@/components/site/citation-box";
 import { TableOfContents } from "@/components/site/table-of-contents";
@@ -10,7 +10,7 @@ import { BlogLightboxBinder } from "@/components/site/blog-lightbox-binder";
 export const revalidate = 60;
 
 export async function generateMetadata({ params }: { params: { slug: string } }) {
-  const all = getAllPosts();
+  const all = await getAllPostsAsync();
   const result = getScheduledPostBySlugBurst(all, params.slug, "en");
   if (!result || !result.isPublished) {
     return {
@@ -50,8 +50,9 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   };
 }
 
-export default function BlogPostEN({ params }: { params: { slug: string } }) {
-  const result = getScheduledPostBySlugBurst(getAllPosts(), params.slug, "en");
+export default async function BlogPostEN({ params }: { params: { slug: string } }) {
+  const all = await getAllPostsAsync();
+  const result = getScheduledPostBySlugBurst(all, params.slug, "en");
   if (!result) notFound();
 
   const { post, isPublished } = result;

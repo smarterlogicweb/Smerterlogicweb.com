@@ -2,12 +2,12 @@ import { Mail, ShieldCheck, Clock, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { TrackedLink } from "@/components/site/tracked-link";
-import { ContactForm } from "@/components/site/contact-form";
 import { Reveal } from "@/components/site/reveal";
 import { GoogleReviewsBadge } from "@/components/site/google-reviews";
 import { BookingButton } from "@/components/site/booking-modal";
 import { Guarantee } from "@/components/site/guarantee";
 import { Particles } from "@/components/site/particles";
+import { ContactForm } from "@/components/site/contact-form";
 import { Suspense } from "react";
 
 export const metadata = {
@@ -82,12 +82,14 @@ export default function ContactPage() {
         </Reveal>
       </div>
 
-      {/* Formulaire avec validation */}
+      {/* Formulaire (envoi email pur via Resend) */}
       <div className="mt-10 rounded-[28px] card-elevated border bg-card p-6 shadow-sm">
         <Reveal as="h2" className="h2-underline text-left font-heading text-xl font-semibold">Envoyer un message</Reveal>
-        <Suspense fallback={<div className="mt-3 text-sm text-muted-foreground">Chargement du formulaire…</div>}>
-          <ContactForm locale="fr" action="/merci" />
-        </Suspense>
+        <div className="mt-3">
+          <Suspense fallback={<div className="text-sm text-muted-foreground">Chargement…</div>}>
+            <ContactForm locale="fr" action="/api/contact-email" />
+          </Suspense>
+        </div>
       </div>
 
       {/* Conseils pour un premier message efficace */}

@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { CheckCircle2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSearchParams } from "next/navigation";
+import { track } from "@/lib/analytics";
 
 type Props = {
   locale: "fr" | "en";
@@ -32,6 +33,15 @@ export function ContactForm({ locale, action }: Props) {
   } = useForm<Fields>({ mode: "onChange" });
 
   const onSubmit = async (_: Fields, e?: React.BaseSyntheticEvent) => {
+    // Track client-side just before native form submission
+    try {
+      const firstName = (watch("firstName") || "").trim();
+      const metier = (watch("metier") || "").trim();
+      const city = (watch("city") || "").trim();
+      if (firstName && metier) {
+        track("contact_form_submitted", { firstName, metier, city, locale });
+      }
+    } catch {}
     const form = e?.target as HTMLFormElement | undefined;
     if (form) form.submit();
   };
@@ -82,8 +92,8 @@ export function ContactForm({ locale, action }: Props) {
       const fromReferrer = (() => {
         if (typeof document === "undefined") return "";
         const ref = document.referrer || "";
-        const mFr = ref.match(/\/site-web\/([^/?#]+)/i);
-        const mEn = ref.match(/\/en\/website\/([^/?#]+)/i);
+        const mFr = ref.match(/\/site-web\/([^\/?#]+)/i);
+        const mEn = ref.match(/\/en\/website\/([^\/?#]+)/i);
         const slug = (mFr?.[1] || mEn?.[1] || "").toLowerCase();
         if (!slug) return "";
         const mapFR: Record<string, string> = {
@@ -149,12 +159,12 @@ export function ContactForm({ locale, action }: Props) {
 
   const validatePhone = (val: string) => {
     const raw = String(val || "");
-    const sanitized = raw.replace(/[\s.()-]/g, "");
+    const sanitized = raw.replace(/[\\s.()-]/g, "");
     if (locale === "fr") {
-      const ok = /^(\+33|0)[1-9]\d{8}$/.test(sanitized);
+      const ok = /^(\\+33|0)[1-9]\\d{8}$/.test(sanitized);
       return ok || t.invalidPhone;
     }
-    const ok = /^[+]?[\d\s().-]{6,}$/.test(raw);
+    const ok = /^[+]?[\\d\\s().-]{6,}$/.test(raw);
     return ok || t.invalidPhone;
   };
 

@@ -7,6 +7,7 @@ const PROVIDER = (process.env.NEXT_PUBLIC_ANALYTICS_PROVIDER || "").toLowerCase(
 const PLAUSIBLE_DOMAIN = process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN || "smarterlogicweb.com";
 const UMAMI_SRC = process.env.NEXT_PUBLIC_UMAMI_SRC || "https://analytics.umami.is/script.js";
 const UMAMI_WEBSITE_ID = process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID || "";
+const GA_ID = process.env.NEXT_PUBLIC_GA_ID || "";
 
 function getConsent(): { analytics?: boolean } | null {
   if (typeof document === "undefined") return null;
@@ -29,8 +30,33 @@ export function AnalyticsLoader() {
 
   if (!allowed) return null;
 
-  // GA/GTM are handled via CookieConsent + GTM integration
-  if (PROVIDER === "ga" || PROVIDER === "gtm") return null;
+  // Google Analytics direct (gtag)
+  if (PROVIDER === "ga" && GA_ID) {
+    return (
+      <>
+        <Script
+          id="ga4-init"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', '${GA_ID}');
+            `,
+          }}
+        />
+        <Script
+          id="ga4-src"
+          src={`https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(GA_ID)}`}
+          strategy="afterInteractive"
+        />
+      </>
+    );
+  }
+
+  // GTM is handled by MarketingLoader when marketing consent is granted
+  if (PROVIDER === "gtm") return null;
 
   return (
     <>

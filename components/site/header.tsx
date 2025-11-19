@@ -9,6 +9,38 @@ import { Menu, X, ChevronDown } from "lucide-react";
 import { track } from "@/lib/analytics";
 import { availablePathsFR, availablePathsEN } from "@/data/routes";
 
+function useDarkMode() {
+  // Rely solely on the 'dark' class applied to <html> for theme,
+  // to avoid mismatch between OS preference and actual site theme.
+  const [isDark, setIsDark] = useState(false);
+  useEffect(() => {
+    const compute = () => document.documentElement.classList.contains("dark");
+    setIsDark(compute());
+    const mo = new MutationObserver(() => setIsDark(compute()));
+    mo.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+    return () => mo.disconnect();
+  }, []);
+  return isDark;
+}
+
+function getLogoSrc(isDark: boolean, small?: boolean) {
+  // Defaults map to files placed in /public/logos (renamed for clarity)
+  const defaultHeaderLight = "/logos/logo-header-blue.svg";
+  const defaultHeaderDark = "/logos/logo-header-white.svg";
+  const defaultHeaderSmallLight = "/logos/logo-header-blue-small.svg";
+  const defaultHeaderSmallDark = "/logos/logo-header-white-small.svg"; // dedicated small white for dark theme
+
+  const headerLight = process.env.NEXT_PUBLIC_LOGO_HEADER_LIGHT || defaultHeaderLight;
+  const headerDark = process.env.NEXT_PUBLIC_LOGO_HEADER_DARK || defaultHeaderDark;
+  const headerSmallLight = process.env.NEXT_PUBLIC_LOGO_HEADER_SMALL_LIGHT || defaultHeaderSmallLight;
+  const headerSmallDark = process.env.NEXT_PUBLIC_LOGO_HEADER_SMALL_DARK || defaultHeaderSmallDark;
+
+  if (small) {
+    return isDark ? headerSmallDark : headerSmallLight;
+  }
+  return isDark ? headerDark : headerLight;
+}
+
 export function Header() {
   const [open, setOpen] = useState(false);
   const [openServices, setOpenServices] = useState(false);
@@ -17,12 +49,12 @@ export function Header() {
   const isEn = pathname.startsWith("/en");
   const prefix = isEn ? "/en" : "";
   const available = isEn ? availablePathsEN : availablePathsFR;
+  const isDark = useDarkMode();
 
   const t = useMemo(
     () =>
       isEn
         ? {
-            
             nav: {
               projects: "Projects",
               services: "Services",
@@ -45,7 +77,6 @@ export function Header() {
             lang: "FR",
           }
         : {
-            
             nav: {
               projects: "Projets",
               services: "Services",
@@ -142,15 +173,45 @@ export function Header() {
     };
   }, [open]);
 
+  const [logoSrc, setLogoSrc] = useState(getLogoSrc(isDark, false));
+  const [logoSrcSmall, setLogoSrcSmall] = useState(getLogoSrc(isDark, true));
+
+  // If renamed files are not yet deployed under /public/logos, fallback to root file names the user provided
+  useEffect(() => {
+    const targetLarge = getLogoSrc(isDark, false);
+    const targetSmall = getLogoSrc(isDark, true);
+    setLogoSrc(targetLarge);
+    setLogoSrcSmall(targetSmall);
+
+    const check = async (url: string) => {
+      try {
+        const res = await fetch(url, { method: "HEAD" });
+        return res.ok;
+      } catch {
+        return false;
+      }
+    };
+
+    (async () => {
+      const okLarge = await check(targetLarge);
+      const okSmall = await check(targetSmall);
+
+      const fallbackLarge = isDark ? "/logo-gran-blanc.svg" : "/logograndbleu.svg";
+      const fallbackSmall = isDark ? "/logo-petit-blanc.svg" : "/logo-petit-bleue.svg";
+
+      if (!okLarge) setLogoSrc(fallbackLarge);
+      if (!okSmall) setLogoSrcSmall(fallbackSmall);
+    })();
+  }, [isDark]);
+
   return (
     <header className="sticky top-11 z-40 w-full border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      
       <div className="mx-auto flex w-full max-w-5xl items-center justify-between px-6 py-3">
         <div className="flex items-center gap-3">
           <Link href={isEn ? "/en" : "/"} className="flex items-center gap-3 text-sm font-semibold tracking-tight rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background" aria-label={isEn ? "Home — smarterlogicweb" : "Accueil — smarterlogicweb"} title={isEn ? "Home — smarterlogicweb" : "Accueil — smarterlogicweb"}>
             <Image
-              src="/logo.svg"
-              alt="smarterlogicweb"
+              src={logoSrc}
+              alt="Logo"
               width={96}
               height={96}
               className="h-20 w-20 transition-transform hover:scale-105"
@@ -293,7 +354,25 @@ export function Header() {
               className="rounded-full px-4 py-2 text-sm font-medium"
               aria-label={isEn ? "Call now" : "Appeler maintenant"}
             >
-              <a href={callHref} onClick={() => track("cta_call_header")}>📞 {displayPhone}</a>
+              <a
+                href={callHref}
+                onClick={(e) => {
+                  try {
+                    track("cta_call_header");
+                  } catch {}
+                  try {
+                    const href = e.currentTarget.getAttribute("href") || "";
+                    const text = (e.currentTarget.textContent || "").trim();
+                    const label = e.currentTarget.getAttribute("aria-label") || text || href;
+                    const dl = (window as any).dataLayer;
+                    if (Array.isArray(dl) && href.toLowerCase().startsWith("tel:")) {
+                      dl.push({ event: "tel_click", link_url: href, link_text: text, label });
+                    }
+                  } catch {}
+                }}
+              >
+                📞 {displayPhone}
+              </a>
             </Button>
           ) : null}
           <Button
@@ -334,7 +413,7 @@ export function Header() {
           <div className="mx-auto flex w-full max-w-5xl flex-col px-6 py-6">
             <div className="flex items-center justify-between">
               <Link href={isEn ? "/en" : "/"} className="flex items-center gap-3 text-sm font-semibold tracking-tight rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background" aria-label={isEn ? "Home — smarterlogicweb" : "Accueil — smarterlogicweb"} title={isEn ? "Home — smarterlogicweb" : "Accueil — smarterlogicweb"} onClick={() => setOpen(false)}>
-                <Image src="/logo.svg" alt="smarterlogicweb" width={96} height={96} className="h-20 w-20 transition-transform hover:scale-105" />
+                <Image src={logoSrcSmall} alt="Logo" width={96} height={96} className="h-20 w-20 transition-transform hover:scale-105" />
                 <span className="sr-only">{isEn ? "Home" : "Accueil"}</span>
               </Link>
               <button
