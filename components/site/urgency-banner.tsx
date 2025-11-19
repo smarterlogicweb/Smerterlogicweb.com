@@ -16,6 +16,33 @@ export function UrgencyBanner({
   variant?: "alternate" | "stripes";
 }) {
   const [invert, setInvert] = React.useState(false);
+  const ref = React.useRef<HTMLDivElement | null>(null);
+
+  // Synchronise la hauteur réelle de la bannière dans une variable CSS (--banner-h)
+  // afin que la mise en page (espacement + Header sticky) s'adapte dynamiquement,
+  // notamment sur mobile où le contenu peut passer sur 2 lignes.
+  React.useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const apply = () => {
+      const h = el.getBoundingClientRect().height;
+      document.documentElement.style.setProperty("--banner-h", `${Math.round(h)}px`);
+    };
+    apply();
+
+    const ro = new ResizeObserver(apply);
+    ro.observe(el);
+    const onResize = () => apply();
+    window.addEventListener("resize", onResize);
+
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", onResize);
+      // Nettoyage pour éviter un décalage persistant si la bannière est retirée
+      document.documentElement.style.removeProperty("--banner-h");
+    };
+  }, []);
 
   // Alternance automatique (bleu ↔ blanc) si variante "alternate"
   React.useEffect(() => {
@@ -45,7 +72,7 @@ export function UrgencyBanner({
       : "banner-stripes text-foreground";
 
   return (
-    <div className={`${base} ${palette}`} role="region" aria-label="Annonce de disponibilité">
+    <div ref={ref} className={`${base} ${palette}`} role="region" aria-label="Annonce de disponibilité">
       <div className="mx-auto w-full max-w-5xl px-4">
         <div className="flex items-center justify-center gap-3 py-2 text-sm">
           <span className="font-medium">

@@ -205,7 +205,7 @@ export function Header() {
   }, [isDark]);
 
   return (
-    <header className="sticky top-11 z-40 w-full border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-40 w-full border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="mx-auto flex w-full max-w-5xl items-center justify-between px-6 py-3">
         <div className="flex items-center gap-3">
           <Link href={isEn ? "/en" : "/"} className="flex items-center gap-3 text-sm font-semibold tracking-tight rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background" aria-label={isEn ? "Home — smarterlogicweb" : "Accueil — smarterlogicweb"} title={isEn ? "Home — smarterlogicweb" : "Accueil — smarterlogicweb"}>
@@ -408,7 +408,7 @@ export function Header() {
           id="mobile-menu"
           role="dialog"
           aria-modal="true"
-          className="fixed inset-0 z-50 block bg-background supports-[backdrop-filter]:bg-background/90 backdrop-blur md:hidden"
+          className="fixed inset-0 z-[60] block bg-background supports-[backdrop-filter]:bg-background/90 backdrop-blur md:hidden"
         >
           <div className="mx-auto flex w-full max-w-5xl flex-col px-6 py-6">
             <div className="flex items-center justify-between">
