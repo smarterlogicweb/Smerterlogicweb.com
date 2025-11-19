@@ -173,8 +173,36 @@ export function Header() {
     };
   }, [open]);
 
-  const logoSrc = getLogoSrc(isDark, false);
-  const logoSrcSmall = getLogoSrc(isDark, true);
+  const [logoSrc, setLogoSrc] = useState(getLogoSrc(isDark, false));
+  const [logoSrcSmall, setLogoSrcSmall] = useState(getLogoSrc(isDark, true));
+
+  // If renamed files are not yet deployed under /public/logos, fallback to root file names the user provided
+  useEffect(() => {
+    const targetLarge = getLogoSrc(isDark, false);
+    const targetSmall = getLogoSrc(isDark, true);
+    setLogoSrc(targetLarge);
+    setLogoSrcSmall(targetSmall);
+
+    const check = async (url: string) => {
+      try {
+        const res = await fetch(url, { method: "HEAD" });
+        return res.ok;
+      } catch {
+        return false;
+      }
+    };
+
+    (async () => {
+      const okLarge = await check(targetLarge);
+      const okSmall = await check(targetSmall);
+
+      const fallbackLarge = isDark ? "/logo-gran-blanc.svg" : "/logograndbleu.svg";
+      const fallbackSmall = isDark ? "/logo-petit-blanc.svg" : "/logo-petit-bleue.svg";
+
+      if (!okLarge) setLogoSrc(fallbackLarge);
+      if (!okSmall) setLogoSrcSmall(fallbackSmall);
+    })();
+  }, [isDark]);
 
   return (
     <header className="sticky top-11 z-40 w-full border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
