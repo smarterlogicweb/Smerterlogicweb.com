@@ -976,3 +976,40 @@ a.link-underline-strong::after {
   transition: width 320ms ease;
 }
 
+/* Global smooth scroll */
+html {
+  scroll-behavior: smooth;
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
+/* Anchor offsets: ensure headings and sections don't hide under sticky header + banner */
+:root {
+  --scroll-offset-d: calc(var(--banner-h, 0px) + 72px);
+  --scroll-offset-m: calc(var(--banner-h, 0px) + 56px);
+}
+
+/* Common anchor targets (blog content, sections) */
+.prose h2[id],
+.prose h3[id],
+.prose h4[id],
+.prose h5[id],
+.prose h6[id],
+section[id],
+article[id] {
+  scroll-margin-top: var(--scroll-offset-d);
+}
+
+@media (max-width: 768px) {
+  .prose h2[id],
+  .prose h3[id],
+  .prose h4[id],
+  .prose h5[id],
+  .prose h6[id],
+  section[id],
+  article[id] {
+    scroll-margin-top: var(--scroll-offset-m);
+  }
+}
+

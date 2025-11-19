@@ -80,10 +80,25 @@ function enhanceContentHtml(html: string): string {
     const hasDecoding = /\bdecoding=/.test(attrs);
     const hasReferrer = /\breferrerpolicy=/.test(attrs);
     const hasStyle = /\bstyle=/.test(attrs);
+    const hasAlt = /\balt=/.test(attrs);
     const style = hasStyle ? "" : ' style="max-width:100%;height:auto"';
-    return `<img${attrs}${hasLoading ? "" : " loading=\"lazy\""}${hasDecoding ? "" : " decoding=\"async\""}${
-      hasReferrer ? "" : " referrerpolicy=\"no-referrer\""
-    }${style}>`;
+    return `<img${attrs}${hasLoading ? "" : " loading=\\"lazy\\""}${hasDecoding ? "" : " decoding=\\"async\\""}${
+      hasReferrer ? "" : " referrerpolicy=\\"no-referrer\\""
+    }${hasAlt ? "" : " alt=\\"\\""}${style}>`;
+  }).replace(/<a\b([^>]*?)>/gi, (m, attrs) => {
+    // Enforce rel="noopener noreferrer" when target="_blank"
+    const hasTargetBlank = /\btarget\s*=\s*(["'])_blank\1/i.test(attrs) || /\btarget=_blank\b/i.test(attrs);
+    if (!hasTargetBlank) return m;
+    const relMatch = attrs.match(/\brel\s*=\s*(["'])(.*?)\1/i);
+    if (!relMatch) {
+      return `<a${attrs} rel="noopener noreferrer">`;
+    }
+    const relValue = relMatch[2] || "";
+    const tokens = new Set(relValue.split(/\s+/).filter(Boolean));
+    tokens.add("noopener");
+    tokens.add("noreferrer");
+    const newRelValue = Array.from(tokens).join(" ");
+    return `<a${attrs.replace(relMatch[0], `rel="${newRelValue}"`)}>`;
   });
 
   // Wrap standalone images in <figure><img/><figcaption/></figure>

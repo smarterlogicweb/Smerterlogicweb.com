@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getScheduledPostBySlugBurst, formatDate } from "@/lib/blog";
+import { getScheduledPostBySlugBurst, formatDate, getPublishedPostsBurst } from "@/lib/blog";
 import { getAllPostsAsync } from "@/lib/blog-source";
 import { Breadcrumbs } from "@/components/site/breadcrumbs";
 import { CitationBox } from "@/components/site/citation-box";
@@ -97,6 +97,11 @@ export default async function BlogPostEN({ params }: { params: { slug: string } 
 
   // Normalize: replace any <h1> in content with <h2> to guarantee a single H1 (the template title)
   const normalizedContentHtml = post.contentHtml.replace(/<h1\b([^>]*)>([\s\S]*?)<\/h1>/gi, "<h2$1>$2</h2>");
+  // Prev/Next navigation among published EN posts
+  const publishedEn = getPublishedPostsBurst(all, "en");
+  const idx = publishedEn.findIndex((p) => p.slug === post.slug);
+  const prev = idx > 0 ? publishedEn[idx - 1] : null;
+  const next = idx >= 0 && idx < publishedEn.length - 1 ? publishedEn[idx + 1] : null;
 
   return (
     <section className="relative">
@@ -145,11 +150,27 @@ export default async function BlogPostEN({ params }: { params: { slug: string } 
 
             <CitationBox articleSlug={post.slug} locale="en" />
 
-            <footer className="mt-8">
-              <Link href="/en/blog" className="text-primary hover:underline">
-                ← Back to articles
-              </Link>
-            </footer>
+            <nav aria-label="Article navigation" className="mt-8 flex items-center justify-between border-t pt-4">
+          <div>
+            {prev ? (
+              <Link href={`/en/blog/${prev.slug}`} className="text-muted-foreground hover:text-foreground hover:underline">← {prev.title}</Link>
+            ) : (
+              <span className="text-muted-foreground">—</span>
+            )}
+          </div>
+          <div>
+            {next ? (
+              <Link href={`/en/blog/${next.slug}`} className="text-muted-foreground hover:text-foreground hover:underline">{next.title} →</Link>
+            ) : (
+              <span className="text-muted-foreground">—</span>
+            )}
+          </div>
+        </nav>
+        <footer className="mt-4">
+          <Link href="/en/blog" className="text-primary hover:underline">
+            ← Back to articles
+          </Link>
+        </footer>
           </div>
         </div>
       </article>

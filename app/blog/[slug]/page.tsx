@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getScheduledPostBySlugBurst, formatDate } from "@/lib/blog";
+import { getScheduledPostBySlugBurst, formatDate, getPublishedPostsBurst } from "@/lib/blog";
 import { getAllPostsAsync } from "@/lib/blog-source";
 import { RecommendedArticles } from "@/components/site/recommended-articles";
 import { RelatedCities } from "@/components/site/related-cities";
@@ -99,6 +99,11 @@ export default async function BlogPostFR({ params }: { params: { slug: string } 
 
   // Option A: normalize — replace any <h1> in content with <h2> to guarantee a single H1 (the template title)
   const normalizedContentHtml = post.contentHtml.replace(/<h1\b([^>]*)>([\s\S]*?)<\/h1>/gi, "<h2$1>$2</h2>");
+  // Prev/Next navigation among published FR posts
+  const publishedFr = getPublishedPostsBurst(all, "fr");
+  const idx = publishedFr.findIndex((p) => p.slug === post.slug);
+  const prev = idx > 0 ? publishedFr[idx - 1] : null;
+  const next = idx >= 0 && idx < publishedFr.length - 1 ? publishedFr[idx + 1] : null;
 
   return (
     <section className="relative">
@@ -151,7 +156,23 @@ export default async function BlogPostFR({ params }: { params: { slug: string } 
 
             <CitationBox articleSlug={post.slug} locale="fr" />
 
-            <footer className="mt-8">
+            <nav aria-label="Navigation de l’article" className="mt-8 flex items-center justify-between border-t pt-4">
+              <div>
+                {prev ? (
+                  <Link href={`/blog/${prev.slug}`} className="text-muted-foreground hover:text-foreground hover:underline">← {prev.title}</Link>
+                ) : (
+                  <span className="text-muted-foreground">—</span>
+                )}
+              </div>
+              <div>
+                {next ? (
+                  <Link href={`/blog/${next.slug}`} className="text-muted-foreground hover:text-foreground hover:underline">{next.title} →</Link>
+                ) : (
+                  <span className="text-muted-foreground">—</span>
+                )}
+              </div>
+            </nav>
+            <footer className="mt-4">
               <Link href="/blog" className="text-primary hover:underline">
                 ← Retour aux articles
               </Link>
