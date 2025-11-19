@@ -97,7 +97,8 @@ export default async function BlogPostFR({ params }: { params: { slug: string } 
     license: "https://creativecommons.org/licenses/by/4.0/",
   };
 
-  const hasH1 = /<h1(\s|>)/i.test(post.contentHtml);
+  // Option A: normalize — replace any <h1> in content with <h2> to guarantee a single H1 (the template title)
+  const normalizedContentHtml = post.contentHtml.replace(/<h1\b([^>]*)>([\s\S]*?)<\/h1>/gi, "<h2$1>$2</h2>");
 
   return (
     <section className="relative">
@@ -111,9 +112,7 @@ export default async function BlogPostFR({ params }: { params: { slug: string } 
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(blogPostingSchema) }} />
 
         <header className="mb-6">
-          {!hasH1 ? (
-            <h1 className="font-heading text-3xl font-bold tracking-tight">{post.title}</h1>
-          ) : null}
+          <h1 className="font-heading text-3xl font-bold tracking-tight">{post.title}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Par {authorUrl ? <Link href={authorUrl} className="hover:underline">{authorName}</Link> : authorName}
           </p>
@@ -134,7 +133,7 @@ export default async function BlogPostFR({ params }: { params: { slug: string } 
 
         <div className="grid gap-6 md:grid-cols-12">
           <aside className="order-last md:order-none md:col-span-4 lg:col-span-3">
-            <TableOfContents contentHtml={post.contentHtml} rootId="article-content" locale="fr" />
+            <TableOfContents contentHtml={normalizedContentHtml} rootId="article-content" locale="fr" />
           </aside>
 
           <div className="md:col-span-8 lg:col-span-9">
@@ -143,10 +142,10 @@ export default async function BlogPostFR({ params }: { params: { slug: string } 
             <div
               id="article-content"
               className="prose prose-neutral dark:prose-invert max-w-none prose-headings:font-heading prose-a:text-primary prose-a:underline-offset-2 prose-img:rounded-lg prose-img:shadow-sm"
-              dangerouslySetInnerHTML={{ __html: post.contentHtml }}
+              dangerouslySetInnerHTML={{ __html: normalizedContentHtml }}
             />
 
-            <RelatedCities contentHtml={post.contentHtml} locale="fr" />
+            <RelatedCities contentHtml={normalizedContentHtml} locale="fr" />
 
             <RecommendedArticles currentSlug={post.slug} locale="fr" />
 
