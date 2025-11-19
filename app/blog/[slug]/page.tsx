@@ -104,7 +104,7 @@ export default async function BlogPostFR({ params }: { params: { slug: string } 
       {/* Ambient brand gradient background, subtle and non-intrusive */}
       <div aria-hidden className="hero-gradient-animated absolute inset-0 -z-10" />
 
-      <article className="mx-auto w-full max-w-3xl px-6 py-10">
+      <article className="mx-auto w-full max-w-5xl px-6 py-10">
         {/* JSON-LD BreadcrumbList */}
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
         {/* JSON-LD BlogPosting */}
@@ -132,26 +132,33 @@ export default async function BlogPostFR({ params }: { params: { slug: string } 
           />
         </header>
 
-        <TableOfContents contentHtml={post.contentHtml} rootId="article-content" locale="fr" />
-        <BlogLightboxBinder rootId="article-content" ariaLabel="Lightbox images d'article" />
+        <div className="grid gap-6 md:grid-cols-12">
+          <aside className="order-last md:order-none md:col-span-4 lg:col-span-3">
+            <TableOfContents contentHtml={post.contentHtml} rootId="article-content" locale="fr" />
+          </aside>
 
-        <div
-          id="article-content"
-          className="prose prose-neutral dark:prose-invert max-w-none prose-headings:font-heading prose-a:text-primary prose-a:underline-offset-2 prose-img:rounded-lg prose-img:shadow-sm"
-          dangerouslySetInnerHTML={{ __html: post.contentHtml }}
-        />
+          <div className="md:col-span-8 lg:col-span-9">
+            <BlogLightboxBinder rootId="article-content" ariaLabel="Lightbox images d'article" />
 
-        <RelatedCities contentHtml={post.contentHtml} locale="fr" />
+            <div
+              id="article-content"
+              className="prose prose-neutral dark:prose-invert max-w-none prose-headings:font-heading prose-a:text-primary prose-a:underline-offset-2 prose-img:rounded-lg prose-img:shadow-sm"
+              dangerouslySetInnerHTML={{ __html: post.contentHtml }}
+            />
 
-        <RecommendedArticles currentSlug={post.slug} locale="fr" />
+            <RelatedCities contentHtml={post.contentHtml} locale="fr" />
 
-        <CitationBox articleSlug={post.slug} locale="fr" />
+            <RecommendedArticles currentSlug={post.slug} locale="fr" />
 
-        <footer className="mt-8">
-          <Link href="/blog" className="text-primary hover:underline">
-            ← Retour aux articles
-          </Link>
-        </footer>
+            <CitationBox articleSlug={post.slug} locale="fr" />
+
+            <footer className="mt-8">
+              <Link href="/blog" className="text-primary hover:underline">
+                ← Retour aux articles
+              </Link>
+            </footer>
+          </div>
+        </div>
       </article>
     </section>
   );

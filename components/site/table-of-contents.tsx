@@ -84,7 +84,10 @@ export function TableOfContents({
   }
 
   return (
-    <nav aria-label={pageTitle} className="mb-6 rounded-lg border bg-card p-4 text-sm">
+    <nav
+      aria-label={pageTitle}
+      className="mb-6 rounded-xl border bg-card p-4 text-sm md:sticky md:top-24 md:max-h-[calc(100vh-8rem)] md:overflow-auto"
+    >
       <div className="mb-2 flex items-center justify-between">
         <span className="font-semibold">{title || pageTitle}</span>
         <span className="text-muted-foreground">
@@ -100,7 +103,13 @@ export function TableOfContents({
             <li key={e.id} className={pad}>
               <a
                 href={`#${e.id}`}
-                className={`block hover:underline ${isActive ? "text-primary" : "text-muted-foreground"}`}
+                aria-current={isActive ? "true" : undefined}
+                className={[
+                  "block rounded-md px-2 py-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
+                  isActive
+                    ? "text-primary bg-accent/50 border-l-2 border-primary"
+                    : "text-muted-foreground hover:text-foreground hover:bg-accent/50",
+                ].join(" ")}
               >
                 {e.text}
               </a>
