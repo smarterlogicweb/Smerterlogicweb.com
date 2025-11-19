@@ -967,27 +967,3 @@ a.link-underline-strong::after {
     transition: opacity 0.2s ease;
   }
 }
-
-/* Urgency banner — optional hachure stripes (blue/white) */
-.banner-stripes {
-  /* Diagonal repeating stripes using brand primary + page background for theme harmony */
-  background-image: repeating-linear-gradient(
-    45deg,
-    hsl(var(--primary)) 0 12px,
-    hsl(var(--background)) 12px 24px
-  );
-  background-size: 40px 40px;
-  animation: bannerStripesSlide 6s linear infinite;
-}
-
-/* Reduced motion: keep static */
-@media (prefers-reduced-motion: reduce) {
-  .banner-stripes {
-    animation: none !important;
-  }
-}
-
-@keyframes bannerStripesSlide {
-  from { background-position: 0 0; }
-  to   { background-position: 40px 0; }
-}
