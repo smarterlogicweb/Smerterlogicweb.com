@@ -326,7 +326,25 @@ export function Header() {
               className="rounded-full px-4 py-2 text-sm font-medium"
               aria-label={isEn ? "Call now" : "Appeler maintenant"}
             >
-              <a href={callHref} onClick={() => track("cta_call_header")}>📞 {displayPhone}</a>
+              <a
+                href={callHref}
+                onClick={(e) => {
+                  try {
+                    track("cta_call_header");
+                  } catch {}
+                  try {
+                    const href = e.currentTarget.getAttribute("href") || "";
+                    const text = (e.currentTarget.textContent || "").trim();
+                    const label = e.currentTarget.getAttribute("aria-label") || text || href;
+                    const dl = (window as any).dataLayer;
+                    if (Array.isArray(dl) && href.toLowerCase().startsWith("tel:")) {
+                      dl.push({ event: "tel_click", link_url: href, link_text: text, label });
+                    }
+                  } catch {}
+                }}
+              >
+                📞 {displayPhone}
+              </a>
             </Button>
           ) : null}
           <Button
