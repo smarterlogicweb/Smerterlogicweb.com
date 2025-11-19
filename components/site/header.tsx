@@ -408,7 +408,7 @@ export function Header() {
           id="mobile-menu"
           role="dialog"
           aria-modal="true"
-          className="fixed inset-0 z-[60] block bg-background supports-[backdrop-filter]:bg-background/90 backdrop-blur md:hidden"
+          className="fixed inset-0 z-[60] block bg-background md:hidden"
         >
           <div className="mx-auto flex w-full max-w-5xl flex-col px-6 py-6">
             <div className="flex items-center justify-between">
