@@ -25,7 +25,7 @@ export function CopyHeadingLinks({
       const btn = document.createElement("button");
       btn.type = "button";
       btn.className =
-        "ml-2 inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-muted-foreground hover:text-foreground hover:bg-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50";
+        "copy-anchor-link ml-2 inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-muted-foreground hover:text-foreground hover:bg-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50";
       btn.setAttribute("aria-label", label);
       btn.innerHTML = `<span class="sr-only">${label}</span>`;
       const icon = document.createElement("span");

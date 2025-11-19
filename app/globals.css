@@ -990,7 +990,6 @@ html {
   --scroll-offset-m: calc(var(--banner-h, 0px) + 56px);
 }
 
-/* Common anchor targets (blog content, sections) */
 /* Apply scroll offset to typical anchor targets site-wide */
 .prose h2[id],
 .prose h3[id],
@@ -1024,5 +1023,25 @@ div[id][data-anchor="1"] {
   div[id][data-anchor="1"] {
     scroll-margin-top: var(--scroll-offset-m);
   }
+}
+
+/* Copy heading link — appear only on hover/focus of heading (discreet) */
+.prose h2[id] .copy-anchor-link,
+.prose h3[id] .copy-anchor-link,
+h2[id] .copy-anchor-link,
+h3[id] .copy-anchor-link {
+  opacity: 0;
+  transition: opacity 180ms ease;
+}
+.prose h2[id]:hover .copy-anchor-link,
+.prose h2[id]:focus-within .copy-anchor-link,
+.prose h3[id]:hover .copy-anchor-link,
+.prose h3[id]:focus-within .copy-anchor-link,
+h2[id]:hover .copy-anchor-link,
+h2[id]:focus-within .copy-anchor-link,
+h3[id]:hover .copy-anchor-link,
+h3[id]:focus-within .copy-anchor-link {
+  opacity: 1;
+}
 }
 
