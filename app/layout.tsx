@@ -224,9 +224,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         
         <GyroTilt />
 
-        {/* Urgency fixed banner at top + spacer to avoid overlap */}
+        {/* Urgency fixed banner at top + dynamic spacer to avoid overlap (matches banner height) */}
         <UrgencyBanner />
-        <div aria-hidden className="h-11" />
+        <div aria-hidden className="pointer-events-none" style={{ height: 'var(--banner-h, 0px)' }} />
 
         <a href="#content" className="sr-only focus:not-sr-only fixed top-2 left-2 z-50 rounded bg-primary px-3 py-2 text-white">
           Passer au contenu

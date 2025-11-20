@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getScheduledPostBySlugBurst, formatDate } from "@/lib/blog";
+import { getScheduledPostBySlugBurst, formatDate, getPublishedPostsBurst } from "@/lib/blog";
 import { getAllPostsAsync } from "@/lib/blog-source";
 import { RecommendedArticles } from "@/components/site/recommended-articles";
 import { RelatedCities } from "@/components/site/related-cities";
@@ -8,6 +8,8 @@ import { Breadcrumbs } from "@/components/site/breadcrumbs";
 import { CitationBox } from "@/components/site/citation-box";
 import { TableOfContents } from "@/components/site/table-of-contents";
 import { BlogLightboxBinder } from "@/components/site/blog-lightbox-binder";
+import { ScrollProgress } from "@/components/site/scroll-progress";
+import { CopyHeadingLinks } from "@/components/site/copy-heading-links";
 
 export const revalidate = 60;
 
@@ -97,23 +99,28 @@ export default async function BlogPostFR({ params }: { params: { slug: string } 
     license: "https://creativecommons.org/licenses/by/4.0/",
   };
 
-  const hasH1 = /<h1(\s|>)/i.test(post.contentHtml);
+  // Option A: normalize — replace any <h1> in content with <h2> to guarantee a single H1 (the template title)
+  const normalizedContentHtml = post.contentHtml.replace(/<h1\b([^>]*)>([\s\S]*?)<\/h1>/gi, "<h2$1>$2</h2>");
+  // Prev/Next navigation among published FR posts
+  const publishedFr = getPublishedPostsBurst(all, "fr");
+  const idx = publishedFr.findIndex((p) => p.slug === post.slug);
+  const prev = idx > 0 ? publishedFr[idx - 1] : null;
+  const next = idx >= 0 && idx < publishedFr.length - 1 ? publishedFr[idx + 1] : null;
 
   return (
     <section className="relative">
       {/* Ambient brand gradient background, subtle and non-intrusive */}
       <div aria-hidden className="hero-gradient-animated absolute inset-0 -z-10" />
+      <ScrollProgress />
 
-      <article className="mx-auto w-full max-w-3xl px-6 py-10">
+      <article className="mx-auto w-full max-w-5xl px-6 py-10">
         {/* JSON-LD BreadcrumbList */}
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
         {/* JSON-LD BlogPosting */}
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(blogPostingSchema) }} />
 
         <header className="mb-6">
-          {!hasH1 ? (
-            <h1 className="font-heading text-3xl font-bold tracking-tight">{post.title}</h1>
-          ) : null}
+          <h1 className="font-heading text-3xl font-bold tracking-tight">{post.title}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Par {authorUrl ? <Link href={authorUrl} className="hover:underline">{authorName}</Link> : authorName}
           </p>
@@ -132,26 +139,50 @@ export default async function BlogPostFR({ params }: { params: { slug: string } 
           />
         </header>
 
-        <TableOfContents contentHtml={post.contentHtml} rootId="article-content" locale="fr" />
-        <BlogLightboxBinder rootId="article-content" ariaLabel="Lightbox images d'article" />
+        <div className="grid gap-6 md:grid-cols-12">
+          <aside className="order-last md:order-none md:col-span-4 lg:col-span-3">
+            <TableOfContents contentHtml={normalizedContentHtml} rootId="article-content" locale="fr" />
+          </aside>
 
-        <div
-          id="article-content"
-          className="prose prose-neutral dark:prose-invert max-w-none prose-headings:font-heading prose-a:text-primary prose-a:underline-offset-2 prose-img:rounded-lg prose-img:shadow-sm"
-          dangerouslySetInnerHTML={{ __html: post.contentHtml }}
-        />
+          <div className="md:col-span-8 lg:col-span-9">
+            <BlogLightboxBinder rootId="article-content" ariaLabel="Lightbox images d'article" />
 
-        <RelatedCities contentHtml={post.contentHtml} locale="fr" />
+            <div
+              id="article-content"
+              className="prose prose-neutral dark:prose-invert max-w-none prose-headings:font-heading prose-a:text-primary prose-a:underline-offset-2 prose-img:rounded-lg prose-img:shadow-sm"
+              dangerouslySetInnerHTML={{ __html: normalizedContentHtml }}
+            />
+            <CopyHeadingLinks rootId="article-content" locale="fr" />
 
-        <RecommendedArticles currentSlug={post.slug} locale="fr" />
+            <RelatedCities contentHtml={normalizedContentHtml} locale="fr" />
 
-        <CitationBox articleSlug={post.slug} locale="fr" />
+            <RecommendedArticles currentSlug={post.slug} locale="fr" />
 
-        <footer className="mt-8">
-          <Link href="/blog" className="text-primary hover:underline">
-            ← Retour aux articles
-          </Link>
-        </footer>
+            <CitationBox articleSlug={post.slug} locale="fr" />
+
+            <nav aria-label="Navigation de l’article" className="mt-8 flex items-center justify-between border-t pt-4">
+              <div>
+                {prev ? (
+                  <Link href={`/blog/${prev.slug}`} className="text-muted-foreground hover:text-foreground hover:underline">← {prev.title}</Link>
+                ) : (
+                  <span className="text-muted-foreground">—</span>
+                )}
+              </div>
+              <div>
+                {next ? (
+                  <Link href={`/blog/${next.slug}`} className="text-muted-foreground hover:text-foreground hover:underline">{next.title} →</Link>
+                ) : (
+                  <span className="text-muted-foreground">—</span>
+                )}
+              </div>
+            </nav>
+            <footer className="mt-4">
+              <Link href="/blog" className="text-primary hover:underline">
+                ← Retour aux articles
+              </Link>
+            </footer>
+          </div>
+        </div>
       </article>
     </section>
   );

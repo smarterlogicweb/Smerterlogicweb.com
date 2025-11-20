@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Menu, X, ChevronDown } from "lucide-react";
@@ -45,6 +45,7 @@ export function Header() {
   const [open, setOpen] = useState(false);
   const [openServices, setOpenServices] = useState(false);
   const [openProjets, setOpenProjets] = useState(false);
+  const drawerRef = useRef<HTMLDivElement | null>(null);
   const pathname = usePathname() || "/";
   const isEn = pathname.startsWith("/en");
   const prefix = isEn ? "/en" : "";
@@ -154,7 +155,7 @@ export function Header() {
     return rawPhone || (isEn ? "Call" : "Appeler");
   }, [rawPhone, isEn]);
 
-  // Close on ESC and lock scroll when open
+  // Close on ESC and lock scroll when open + set initial focus in drawer
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       if (e.key === "Escape") setOpen(false);
@@ -162,6 +163,18 @@ export function Header() {
     document.addEventListener("keydown", onKey);
     if (open) {
       document.body.style.overflow = "hidden";
+      // Set initial focus on close button or first focusable
+      requestAnimationFrame(() => {
+        const root = drawerRef.current;
+        if (!root) return;
+        const closeBtn = root.querySelector<HTMLButtonElement>('button[aria-label="Fermer le menu"], button[aria-label="Close menu"]');
+        if (closeBtn) {
+          closeBtn.focus();
+          return;
+        }
+        const first = root.querySelector<HTMLElement>('a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])');
+        first?.focus();
+      });
     } else {
       document.body.style.overflow = "";
       setOpenServices(false);
@@ -205,7 +218,7 @@ export function Header() {
   }, [isDark]);
 
   return (
-    <header className="sticky top-11 z-40 w-full border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-40 w-full border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="mx-auto flex w-full max-w-5xl items-center justify-between px-6 py-3">
         <div className="flex items-center gap-3">
           <Link href={isEn ? "/en" : "/"} className="flex items-center gap-3 text-sm font-semibold tracking-tight rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background" aria-label={isEn ? "Home — smarterlogicweb" : "Accueil — smarterlogicweb"} title={isEn ? "Home — smarterlogicweb" : "Accueil — smarterlogicweb"}>
@@ -214,7 +227,7 @@ export function Header() {
               alt="Logo"
               width={96}
               height={96}
-              className="h-20 w-20 transition-transform hover:scale-105"
+              className="h-16 w-16 transition-transform hover:scale-105 md:h-20 md:w-20"
               priority
             />
             <span className="sr-only">{isEn ? "Home" : "Accueil"}</span>
@@ -408,12 +421,35 @@ export function Header() {
           id="mobile-menu"
           role="dialog"
           aria-modal="true"
-          className="fixed inset-0 z-50 block bg-background supports-[backdrop-filter]:bg-background/90 backdrop-blur md:hidden"
+          className="fixed inset-0 z-[60] block bg-background md:hidden modal-overlay"
+          onKeyDown={(e) => {
+            if (e.key !== "Tab") return;
+            const root = drawerRef.current;
+            if (!root) return;
+            const focusable = root.querySelectorAll<HTMLElement>(
+              'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
+            );
+            if (!focusable.length) return;
+            const first = focusable[0];
+            const last = focusable[focusable.length - 1];
+            const active = document.activeElement as HTMLElement | null;
+            if (e.shiftKey) {
+              if (active === first || !root.contains(active)) {
+                e.preventDefault();
+                last.focus();
+              }
+            } else {
+              if (active === last || !root.contains(active)) {
+                e.preventDefault();
+                first.focus();
+              }
+            }
+          }}
         >
-          <div className="mx-auto flex w-full max-w-5xl flex-col px-6 py-6">
-            <div className="flex items-center justify-between">
+          <div ref={drawerRef} className="mx-auto flex w-full max-w-5xl min-h-full flex-col bg-background px-6 py-6 text-foreground modal-content drawer-content">
+            <div className="flex items-center justify-between border-b pb-2 drawer-topbar">
               <Link href={isEn ? "/en" : "/"} className="flex items-center gap-3 text-sm font-semibold tracking-tight rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background" aria-label={isEn ? "Home — smarterlogicweb" : "Accueil — smarterlogicweb"} title={isEn ? "Home — smarterlogicweb" : "Accueil — smarterlogicweb"} onClick={() => setOpen(false)}>
-                <Image src={logoSrcSmall} alt="Logo" width={96} height={96} className="h-20 w-20 transition-transform hover:scale-105" />
+                <Image src={logoSrcSmall} alt="Logo" width={96} height={96} className="h-16 w-16 transition-transform hover:scale-105 md:h-20 md:w-20" />
                 <span className="sr-only">{isEn ? "Home" : "Accueil"}</span>
               </Link>
               <button

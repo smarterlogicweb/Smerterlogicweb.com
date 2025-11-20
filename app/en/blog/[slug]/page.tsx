@@ -1,11 +1,13 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getScheduledPostBySlugBurst, formatDate } from "@/lib/blog";
+import { getScheduledPostBySlugBurst, formatDate, getPublishedPostsBurst } from "@/lib/blog";
 import { getAllPostsAsync } from "@/lib/blog-source";
 import { Breadcrumbs } from "@/components/site/breadcrumbs";
 import { CitationBox } from "@/components/site/citation-box";
 import { TableOfContents } from "@/components/site/table-of-contents";
 import { BlogLightboxBinder } from "@/components/site/blog-lightbox-binder";
+import { ScrollProgress } from "@/components/site/scroll-progress";
+import { CopyHeadingLinks } from "@/components/site/copy-heading-links";
 
 export const revalidate = 60;
 
@@ -95,12 +97,21 @@ export default async function BlogPostEN({ params }: { params: { slug: string } 
     license: "https://creativecommons.org/licenses/by/4.0/",
   };
 
+  // Normalize: replace any <h1> in content with <h2> to guarantee a single H1 (the template title)
+  const normalizedContentHtml = post.contentHtml.replace(/<h1\b([^>]*)>([\s\S]*?)<\/h1>/gi, "<h2$1>$2</h2>");
+  // Prev/Next navigation among published EN posts
+  const publishedEn = getPublishedPostsBurst(all, "en");
+  const idx = publishedEn.findIndex((p) => p.slug === post.slug);
+  const prev = idx > 0 ? publishedEn[idx - 1] : null;
+  const next = idx >= 0 && idx < publishedEn.length - 1 ? publishedEn[idx + 1] : null;
+
   return (
     <section className="relative">
       {/* Ambient brand gradient background, subtle and non-intrusive */}
       <div aria-hidden className="hero-gradient-animated absolute inset-0 -z-10" />
+      <ScrollProgress />
 
-      <article className="mx-auto w-full max-w-3xl px-6 py-10">
+      <article className="mx-auto w-full max-w-5xl px-6 py-10">
         {/* JSON-LD BreadcrumbList */}
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
         {/* JSON-LD BlogPosting */}
@@ -126,22 +137,46 @@ export default async function BlogPostEN({ params }: { params: { slug: string } 
           />
         </header>
 
-        <TableOfContents contentHtml={post.contentHtml} rootId="article-content" locale="en" />
-        <BlogLightboxBinder rootId="article-content" ariaLabel="Article images lightbox" />
+        <div className="grid gap-6 md:grid-cols-12">
+          <aside className="order-last md:order-none md:col-span-4 lg:col-span-3">
+            <TableOfContents contentHtml={normalizedContentHtml} rootId="article-content" locale="en" />
+          </aside>
 
-        <div
-          id="article-content"
-          className="prose prose-neutral dark:prose-invert max-w-none prose-headings:font-heading prose-a:text-primary prose-a:underline-offset-2 prose-img:rounded-lg prose-img:shadow-sm"
-          dangerouslySetInnerHTML={{ __html: post.contentHtml }}
-        />
+          <div className="md:col-span-8 lg:col-span-9">
+            <BlogLightboxBinder rootId="article-content" ariaLabel="Article images lightbox" />
 
-        <CitationBox articleSlug={post.slug} locale="en" />
+            <div
+              id="article-content"
+              className="prose prose-neutral dark:prose-invert max-w-none prose-headings:font-heading prose-a:text-primary prose-a:underline-offset-2 prose-img:rounded-lg prose-img:shadow-sm"
+              dangerouslySetInnerHTML={{ __html: normalizedContentHtml }}
+            />
+            <CopyHeadingLinks rootId="article-content" locale="en" />
 
-        <footer className="mt-8">
+            <CitationBox articleSlug={post.slug} locale="en" />
+
+            <nav aria-label="Article navigation" className="mt-8 flex items-center justify-between border-t pt-4">
+          <div>
+            {prev ? (
+              <Link href={`/en/blog/${prev.slug}`} className="text-muted-foreground hover:text-foreground hover:underline">← {prev.title}</Link>
+            ) : (
+              <span className="text-muted-foreground">—</span>
+            )}
+          </div>
+          <div>
+            {next ? (
+              <Link href={`/en/blog/${next.slug}`} className="text-muted-foreground hover:text-foreground hover:underline">{next.title} →</Link>
+            ) : (
+              <span className="text-muted-foreground">—</span>
+            )}
+          </div>
+        </nav>
+        <footer className="mt-4">
           <Link href="/en/blog" className="text-primary hover:underline">
             ← Back to articles
           </Link>
         </footer>
+          </div>
+        </div>
       </article>
     </section>
   );
